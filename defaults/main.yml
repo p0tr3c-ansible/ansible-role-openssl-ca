@@ -1,0 +1,30 @@
+root_ca_dir: "/etc/pki/{{ ansible_fqdn }}"
+
+# Directory and file owenership on local filesystem
+ca_user: root
+ca_group: root
+
+default_key_bit_length: 4096
+default_req_md: sha256
+
+default_countryName: GB
+default_stateName: England
+default_localityName: London
+default_organizationName: Acme
+default_organizationUnit: IT
+default_emailAddress: admin@acme.local
+
+# Override values for root ca certificate
+root_countryName: ""
+root_stateName: ""
+root_localityName: ""
+root_organizationName: ""
+root_organizationalUntiName: ""
+root_commonName: ""
+root_emailAddress: ""
+
+# Private key and certificate settings for root certificate
+root_rsa_key_bit_length: 4096
+root_ca_day_expiry: 7300
+root_ca_md: sha256
+root_private_key_pass: please-change-me

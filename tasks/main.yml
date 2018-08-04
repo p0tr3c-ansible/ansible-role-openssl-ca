@@ -1,0 +1,70 @@
+- name: Create root CA directory
+  file:
+    path: "{{ root_ca_dir }}"
+    state: directory
+    mode: 0700
+    owner: "{{ ca_user }}"
+    group: "{{ ca_group }}"
+
+- name: Create CA directory tree
+  file:
+    path: "{{ root_ca_dir }}/{{ item }}"
+    state: directory
+    mode: 0700
+    owner: "{{ ca_user }}"
+    group: "{{ ca_group }}"
+  with_items:
+    - certs
+    - crl
+    - newcerts
+    - private
+
+- name: Copy openssl.cnf file
+  template:
+    src: openssl.cnf.j2
+    dest: "{{ root_ca_dir }}/openssl.cnf"
+    mode: 0640
+    owner: "{{ ca_user }}"
+    group: "{{ ca_group }}"
+
+- name: Initialize index.txt file
+  file:
+    path: "{{ root_ca_dir }}/index.txt"
+    state: touch
+    mode: 0640
+    owner: "{{ ca_user }}"
+    group: "{{ ca_group }}"
+
+- name: Initialize serial file
+  lineinfile:
+    path: "{{ root_ca_dir }}/serial"
+    regexp: "^1000$"
+    line: "1000"
+    state: present
+    create: true
+
+- name: Create root key
+  expect:
+    command: "openssl genrsa -aes256 -out {{ root_ca_dir}}/private/ca.key.pem {{ root_rsa_key_bit_length }}"
+    responses:
+      Enter: "{{ root_private_key_pass }}"
+      Verify: "{{ root_private_key_pass }}"
+    creates: "{{ root_ca_dir }}/private/ca.key.pem"
+
+- name: Create Root Certificate
+  expect:
+    command: "openssl req -config {{ root_ca_dir }}/openssl.cnf \
+      -key {{ root_ca_dir }}/private/ca.key.pem \
+      -new -x509 -days {{ root_ca_day_expiry }} -{{ root_ca_md }} \
+      -extensions v3_ca \
+      -out {{ root_ca_dir }}/certs/ca.cert.pem"
+    responses:
+      Enter: "{{ root_private_key_pass }}"
+      Country: "{{ root_countryName }}"
+      State: "{{ root_stateName }}"
+      Locality: "{{ root_localityName }}"
+      Organization: "{{ root_organizationName }}"
+      Organizational: "{{ root_organizationalUntiName }}"
+      Common: "{{ root_commonName }}"
+      Email: "{{ root_emailAddress }}"
+    creates: "{{ root_ca_dir }}/certs/ca.cert.pem"
