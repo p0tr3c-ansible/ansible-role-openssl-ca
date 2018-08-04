@@ -34,6 +34,7 @@
     mode: 0640
     owner: "{{ ca_user }}"
     group: "{{ ca_group }}"
+  changed_when: false
 
 - name: Initialize serial file
   lineinfile:
@@ -46,7 +47,7 @@
 - name: Set private key password
   template:
     src: pkey.txt.j2
-    dest: "{{ root_ca_dir }}/private/pkey.txt"
+    dest: "{{ root_ca_dir }}{{ root_private_key_pass_file }}"
     mode: 0600
     owner: "{{ ca_user }}"
     group: "{{ ca_group }}"
@@ -63,6 +64,14 @@
       Enter: "{{ root_private_key_pass }}"
       Verify: "{{ root_private_key_pass }}"
     creates: "{{ root_ca_dir }}/private/ca.key.pem"
+
+- name: Verify private key
+  expect:
+    command: "openssl rsa -in {{ root_ca_dir }}/private/ca.key.pem -noout -text"
+    responses:
+      Enter: "{{ root_private_key_pass }}"
+  no_log: true
+  changed_when: false
 
 - name: Create Root Certificate
   expect:
