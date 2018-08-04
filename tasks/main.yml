@@ -43,6 +43,10 @@
     state: present
     create: true
 
+- name: Generate root ca private keys password
+  set_fact:
+    root_private_key_pass: "{{lookup('password', '{{ root_ca_dir }}{{ root_private_key_pass_file }} chars=ascii_letters,digits,hexdigits,punctuation length=32')}}"
+
 - name: Create root key
   expect:
     command: "openssl genrsa -aes256 -out {{ root_ca_dir}}/private/ca.key.pem {{ root_rsa_key_bit_length }}"

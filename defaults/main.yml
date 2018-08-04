@@ -27,4 +27,4 @@ root_emailAddress: ""
 root_rsa_key_bit_length: 4096
 root_ca_day_expiry: 7300
 root_ca_md: sha256
-root_private_key_pass: please-change-me
+root_private_key_pass_file: /private/pkey.txt
