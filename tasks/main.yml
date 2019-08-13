@@ -14,6 +14,7 @@
     owner: "{{ ca_user }}"
     group: "{{ ca_group }}"
   with_items:
+    - csr
     - certs
     - crl
     - newcerts
